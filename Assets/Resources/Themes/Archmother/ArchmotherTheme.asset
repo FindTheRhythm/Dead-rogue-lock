@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fd1be361ec205d4f898019ca5e77126, type: 3}
+  m_Name: ArchmotherTheme
+  m_EditorClassIdentifier: Assembly-CSharp::RoomTheme
+  themeName: Archmother
+  floorTiles:
+  - {fileID: 11400000, guid: db4927a3a39f8644ba05656ae0a7e099, type: 2}
+  - {fileID: 11400000, guid: 90bfb3515f9a6ea40aef38be1a7776b1, type: 2}
+  corridorFloorTiles:
+  - {fileID: 11400000, guid: 65e730d76b46fbc4690c546bece6e625, type: 2}
+  doorTop: {fileID: 11400000, guid: f267edde766e53a40b178847e532768c, type: 2}
+  doorBottom: {fileID: 11400000, guid: 0b8d04ec5d070d54590a0a2fec40d4c6, type: 2}
+  doorLeft: {fileID: 11400000, guid: f56edd073c9e1ec46acb0587c150b8f8, type: 2}
+  doorRight: {fileID: 11400000, guid: 3893ef3161190194b81f25cadf154f41, type: 2}
+  wallTop: {fileID: 11400000, guid: 6a6783fab4b641a45a19df09a29af1f8, type: 2}
+  wallBottom: {fileID: 11400000, guid: 8befe58248d133c4faebfae7e17a2a07, type: 2}
+  wallLeft: {fileID: 11400000, guid: a08e73e141d8bc64c86d457b5a1c2dc3, type: 2}
+  wallRight: {fileID: 11400000, guid: 0ba8eb3193961db4fb38f146f30a0d52, type: 2}
+  wallOuterTopLeft: {fileID: 11400000, guid: 380cda3a20ec7d240a5e225da4370012, type: 2}
+  wallOuterTopRight: {fileID: 11400000, guid: 715a2099594af6d46948feb4280cef66, type: 2}
+  wallOuterBottomLeft: {fileID: 11400000, guid: a14fa7e5fa5b0b140bd5f9d8f6a5e34a, type: 2}
+  wallOuterBottomRight: {fileID: 11400000, guid: 1c3948edc82a50a4d84a74caa3cd871e, type: 2}
+  wallInnerTopLeft: {fileID: 11400000, guid: adf28b71bb9963545bcbe851aec94321, type: 2}
+  wallInnerTopRight: {fileID: 11400000, guid: fd09ff84b9f917a478c639eb3ed773f5, type: 2}
+  wallInnerBottomLeft: {fileID: 11400000, guid: c14a37a39b952654c95117727531d93f, type: 2}
+  wallInnerBottomRight: {fileID: 11400000, guid: 277bf6e0a9051714e9509a96c52c2124, type: 2}
+  wallSingle: {fileID: 11400000, guid: ae4ce466a91f7a941acd29b49c20ff64, type: 2}
