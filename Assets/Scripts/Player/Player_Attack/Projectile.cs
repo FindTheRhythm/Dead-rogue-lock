@@ -40,7 +40,7 @@ public class Projectile : MonoBehaviour
             return;
         }
 
-        if (other.CompareTag("Wall"))
+        if (other.CompareTag("Wall") || other.CompareTag("Door"))
         {
             Destroy(gameObject);
         }

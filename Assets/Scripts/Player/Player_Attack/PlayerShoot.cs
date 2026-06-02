@@ -5,16 +5,13 @@ public class PlayerShoot : MonoBehaviour
 {
     [Header("REFERENCES")]
     [SerializeField] private Camera cam;
-
     [SerializeField] private Transform shootPoint;
-
     [SerializeField] private GameObject projectilePrefab;
 
     [Header("SETTINGS")]
     [SerializeField] private float fireCooldown = 0.15f;
 
     private GameInput input;
-
     private float timer;
 
     private void Awake()
@@ -28,14 +25,12 @@ public class PlayerShoot : MonoBehaviour
     private void OnEnable()
     {
         input.Enable();
-
         input.Player.Attack.performed += OnAttack;
     }
 
     private void OnDisable()
     {
         input.Player.Attack.performed -= OnAttack;
-
         input.Disable();
     }
 
@@ -46,6 +41,10 @@ public class PlayerShoot : MonoBehaviour
 
     private void OnAttack(InputAction.CallbackContext context)
     {
+        // 🔥 PAUSE BLOCK
+        if (GamePauseState.IsPaused)
+            return;
+
         if (timer > 0f)
             return;
 
@@ -77,6 +76,7 @@ public class PlayerShoot : MonoBehaviour
         Projectile projectile =
             bullet.GetComponent<Projectile>();
 
-        projectile.Initialize(direction);
+        if (projectile != null)
+            projectile.Initialize(direction);
     }
 }

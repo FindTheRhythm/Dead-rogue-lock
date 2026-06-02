@@ -25,7 +25,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Dodge",
+                    "name": "Roll",
                     "type": "Button",
                     "id": "519a504b-5af9-4748-9d3c-9a8c0821fa64",
                     "expectedControlType": "",
@@ -59,6 +59,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Pause",
+                    "type": "Button",
+                    "id": "3b4c84ac-97f3-49a4-b0db-97f295d9a68d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -80,7 +89,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Dodge",
+                    "action": "Roll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -171,6 +180,85 @@
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "fc2a6f6a-afb9-47f6-86c1-f0cea6ef1e9c",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "UI",
+            "id": "dac3bf05-3789-4150-a2a0-ab9f17e552ad",
+            "actions": [
+                {
+                    "name": "Navigate",
+                    "type": "Button",
+                    "id": "e3b4e565-26da-4eca-bc5b-f48f6ccbd8cd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Submit",
+                    "type": "Button",
+                    "id": "f0967887-1234-4aac-8971-b1ced83deb1a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Cancel",
+                    "type": "Button",
+                    "id": "32dc8a21-3c1d-4bf0-9777-9aef7edcb8df",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "288fccc4-103c-4195-9bd1-ba5b7f71cc8f",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "86629f68-3fe6-42d4-ad3b-8d69e82c8efb",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f02163ab-cb3b-4b9e-b2cd-dae2ab729829",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
