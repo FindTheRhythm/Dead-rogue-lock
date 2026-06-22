@@ -11,6 +11,11 @@ public class NPCHealth : MonoBehaviour
     [Header("Death Settings")]
     [SerializeField] private float deathDelay = 3.0f;
 
+    [Header("Health Pickup")]
+    [SerializeField, Range(0f, 1f)] private float healthPickupDropChance = 0.25f;
+    [SerializeField] private int healthPickupAmount = 25;
+    [SerializeField] private float healthPickupDistance = 1.25f;
+
     private int currentHealth;
     private RoomEncounter room;
     private bool isDead;
@@ -119,6 +124,8 @@ public class NPCHealth : MonoBehaviour
         }
 
         // ===== ОБЫЧНЫЙ МОБ =====
+        TryDropHealthPickup();
+
         if (animator != null)
         {
             animator.ResetTrigger("Hurt");
@@ -127,6 +134,18 @@ public class NPCHealth : MonoBehaviour
         }
 
         StartCoroutine(DeathRoutine());
+    }
+
+    private void TryDropHealthPickup()
+    {
+        if (isBoss || Random.value > healthPickupDropChance)
+            return;
+
+        HealthPickup.Create(
+            transform.position,
+            healthPickupAmount,
+            healthPickupDistance
+        );
     }
 
     private IEnumerator DeathRoutine()

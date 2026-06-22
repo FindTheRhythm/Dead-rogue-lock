@@ -112,13 +112,12 @@ public class MapGenerator : MonoBehaviour
 
     private void ChooseTheme()
     {
-        int random =
-            Random.Range(0, 2);
+        int selectedTheme = GameSettings.ThemeIndex;
 
-        CurrentTheme =
-            random == 0
-            ? hiddenKingTheme
-            : archmotherTheme;
+        // Menu order: ArchMother, Hidden king.
+        CurrentTheme = selectedTheme == 0
+            ? archmotherTheme
+            : hiddenKingTheme;
 
         if (CurrentTheme == null)
         {

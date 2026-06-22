@@ -33384,7 +33384,7 @@ AudioSource:
   m_GameObject: {fileID: 1792154881}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -3417396289413763126, guid: 1ce0badacf44e0b4a864657cfe58d97f, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
@@ -33494,6 +33494,7 @@ MonoBehaviour:
   silenceDuration: 0
   fadeInDuration: 0.8
   startFadeInDuration: 3
+  gameplaySceneName: Level_1
   maxSlowPitch: 0.5
   pitchLerpSpeed: 2
 --- !u!4 &1792154884

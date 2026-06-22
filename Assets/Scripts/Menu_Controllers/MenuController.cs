@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -22,6 +23,7 @@ public class MenuController : MonoBehaviour
     private Resolution[] resolutions;
 
     private GameInput input;
+    private Coroutine displayApplyRoutine;
 
     private void Awake()
     {
@@ -44,9 +46,9 @@ public class MenuController : MonoBehaviour
 
     private void Start()
     {
-        resolutions =
-            Screen.resolutions;
+        resolutions = GetUniqueResolutions();
 
+        FillQualityDropdown();
         FillResolutionDropdown();
 
         LoadSettings();
@@ -113,6 +115,8 @@ public class MenuController : MonoBehaviour
     public void StartGame()
     {
         GamePauseState.Resume();
+        SaveAllSettings();
+        GameSettings.ApplySavedSettings();
 
         SceneManager.LoadScene("Level_1");
     }
@@ -133,59 +137,39 @@ public class MenuController : MonoBehaviour
 
     private void LoadSettings()
     {
-        musicVolumeSlider.value =
-            GameSettings.MusicVolume;
+        musicVolumeSlider.SetValueWithoutNotify(GameSettings.MusicVolume);
 
-        fullscreenToggle.isOn =
-            GameSettings.Fullscreen;
+        fullscreenToggle.SetIsOnWithoutNotify(GameSettings.Fullscreen);
 
-        themeDropdown.value =
-            GameSettings.ThemeIndex;
+        themeDropdown.SetValueWithoutNotify(
+            Mathf.Clamp(GameSettings.ThemeIndex, 0, themeDropdown.options.Count - 1)
+        );
 
-        qualityDropdown.value =
-            GameSettings.QualityIndex;
+        qualityDropdown.SetValueWithoutNotify(
+            Mathf.Clamp(GameSettings.QualityIndex, 0, qualityDropdown.options.Count - 1)
+        );
 
-        resolutionDropdown.value =
-            GameSettings.ResolutionIndex;
-
-        ApplySettings();
+        GameSettings.ApplySavedSettings();
     }
 
     public void ApplySettings()
     {
-        AudioListener.volume =
-            musicVolumeSlider.value;
-
-        Screen.fullScreen =
-            fullscreenToggle.isOn;
-
-        QualitySettings.SetQualityLevel(
-            qualityDropdown.value
-        );
-
-        Resolution resolution =
-            resolutions[
-                resolutionDropdown.value
-            ];
-
-        Screen.SetResolution(
-            resolution.width,
-            resolution.height,
-            fullscreenToggle.isOn
-        );
+        SaveAllSettings();
+        GameSettings.ApplySavedSettings();
+        GameSettings.ApplyFullscreenMode();
+        QueueDisplaySettingsApply();
     }
 
     public void OnVolumeChanged(float value)
     {
         GameSettings.MusicVolume = value;
-        GameSettings.MasterVolume = value;
     }
 
     public void OnFullscreenChanged(bool value)
     {
         GameSettings.Fullscreen = value;
-
-        Screen.fullScreen = value;
+        GameSettings.ApplyFullscreenMode();
+        QueueDisplaySettingsApply();
     }
 
     public void OnThemeChanged(int value)
@@ -196,22 +180,41 @@ public class MenuController : MonoBehaviour
     public void OnQualityChanged(int value)
     {
         GameSettings.QualityIndex = value;
-
-        QualitySettings.SetQualityLevel(value);
+        GameSettings.ApplyQualitySettings();
     }
 
     public void OnResolutionChanged(int value)
     {
-        GameSettings.ResolutionIndex = value;
+        if (resolutions == null || resolutions.Length == 0)
+            return;
+
+        value = Mathf.Clamp(value, 0, resolutions.Length - 1);
 
         Resolution resolution =
             resolutions[value];
 
-        Screen.SetResolution(
+        GameSettings.SetResolution(
+            value,
             resolution.width,
-            resolution.height,
-            fullscreenToggle.isOn
+            resolution.height
         );
+        GameSettings.ApplyResolution();
+    }
+
+    private void QueueDisplaySettingsApply()
+    {
+        if (displayApplyRoutine != null)
+            StopCoroutine(displayApplyRoutine);
+
+        displayApplyRoutine = StartCoroutine(ApplyDisplaySettingsRoutine());
+    }
+
+    private IEnumerator ApplyDisplaySettingsRoutine()
+    {
+        yield return null;
+
+        GameSettings.ApplyResolution();
+        displayApplyRoutine = null;
     }
 
     private void FillResolutionDropdown()
@@ -221,7 +224,7 @@ public class MenuController : MonoBehaviour
         var options =
             new System.Collections.Generic.List<string>();
 
-        int currentIndex = 0;
+        int currentIndex = -1;
 
         for (int i = 0; i < resolutions.Length; i++)
         {
@@ -232,32 +235,83 @@ public class MenuController : MonoBehaviour
 
             options.Add(option);
 
-            if (resolutions[i].width ==
-                Screen.currentResolution.width &&
-                resolutions[i].height ==
-                Screen.currentResolution.height)
+            if (resolutions[i].width == GameSettings.ResolutionWidth &&
+                resolutions[i].height == GameSettings.ResolutionHeight)
             {
                 currentIndex = i;
             }
         }
 
+        if (currentIndex < 0)
+        {
+            currentIndex = Mathf.Clamp(
+                GameSettings.ResolutionIndex,
+                0,
+                Mathf.Max(0, resolutions.Length - 1)
+            );
+        }
+
         resolutionDropdown.AddOptions(options);
-
-        resolutionDropdown.value =
-            currentIndex;
-
+        resolutionDropdown.SetValueWithoutNotify(currentIndex);
         resolutionDropdown.RefreshShownValue();
+    }
+
+    private void FillQualityDropdown()
+    {
+        qualityDropdown.ClearOptions();
+        qualityDropdown.AddOptions(
+            new System.Collections.Generic.List<string>
+            {
+                "High",
+                "Medium",
+                "Low"
+            }
+        );
+    }
+
+    private static Resolution[] GetUniqueResolutions()
+    {
+        Resolution[] availableResolutions = Screen.resolutions;
+        var uniqueResolutions = new System.Collections.Generic.List<Resolution>();
+
+        foreach (Resolution resolution in availableResolutions)
+        {
+            bool alreadyAdded = uniqueResolutions.Exists(
+                item => item.width == resolution.width && item.height == resolution.height
+            );
+
+            if (!alreadyAdded)
+                uniqueResolutions.Add(resolution);
+        }
+
+        if (uniqueResolutions.Count == 0)
+            uniqueResolutions.Add(Screen.currentResolution);
+
+        return uniqueResolutions.ToArray();
     }
 
     private void SaveAllSettings()
     {
         GameSettings.MusicVolume = musicVolumeSlider.value;
-        GameSettings.MasterVolume = musicVolumeSlider.value;
 
         GameSettings.Fullscreen = fullscreenToggle.isOn;
         GameSettings.ThemeIndex = themeDropdown.value;
         GameSettings.QualityIndex = qualityDropdown.value;
-        GameSettings.ResolutionIndex = resolutionDropdown.value;
+
+        if (resolutions != null && resolutions.Length > 0)
+        {
+            int resolutionIndex = Mathf.Clamp(
+                resolutionDropdown.value,
+                0,
+                resolutions.Length - 1
+            );
+            Resolution resolution = resolutions[resolutionIndex];
+            GameSettings.SetResolution(
+                resolutionIndex,
+                resolution.width,
+                resolution.height
+            );
+        }
 
         PlayerPrefs.Save();
     }

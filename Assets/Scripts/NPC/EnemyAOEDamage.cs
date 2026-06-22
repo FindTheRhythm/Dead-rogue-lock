@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 using System.Collections;
 
 public class EnemyAOEDamage : MonoBehaviour
@@ -13,11 +14,15 @@ public class EnemyAOEDamage : MonoBehaviour
     [SerializeField] private float attackDelay = 0.4f;
     [SerializeField] private float attackCooldown = 1.5f;
 
+    [Header("Attack Movement")]
+    [SerializeField, Range(0f, 1f)] private float attackMoveMultiplier = 0.08f;
+
     [Header("Target")]
     [SerializeField] private LayerMask playerMask;
 
     [Header("Refs")]
     [SerializeField] private EnemyAnimator enemyAnimator;
+    [SerializeField] private NavMeshAgent agent;
 
     private bool attacking;
     private float nextAttackTime;
@@ -26,6 +31,9 @@ public class EnemyAOEDamage : MonoBehaviour
     {
         if (enemyAnimator == null)
             enemyAnimator = GetComponent<EnemyAnimator>();
+
+        if (agent == null)
+            agent = GetComponent<NavMeshAgent>();
     }
 
     private void Update()
@@ -52,6 +60,13 @@ public class EnemyAOEDamage : MonoBehaviour
     private IEnumerator AttackRoutine()
     {
         attacking = true;
+
+        float normalSpeed = 0f;
+        if (agent != null)
+        {
+            normalSpeed = agent.speed;
+            agent.speed = normalSpeed * attackMoveMultiplier;
+        }
 
         enemyAnimator?.PlayAttack();
 
@@ -81,6 +96,9 @@ public class EnemyAOEDamage : MonoBehaviour
 
         nextAttackTime =
             Time.time + attackCooldown;
+
+        if (agent != null && agent.enabled)
+            agent.speed = normalSpeed;
 
         attacking = false;
     }

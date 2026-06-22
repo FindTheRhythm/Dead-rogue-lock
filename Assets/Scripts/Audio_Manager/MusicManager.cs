@@ -1,8 +1,12 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 
 public class MusicManager : MonoBehaviour
 {
+    private const float BaseMusicVolume = 0.1f;
+
     public static MusicManager Instance;
 
     [Header("Music")]
@@ -15,6 +19,10 @@ public class MusicManager : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioSource musicSource;
 
+    [Header("Pause Mix")]
+    [SerializeField] private float pauseFadeDuration = 0.25f;
+    [SerializeField] private float resumeFadeDuration = 0.4f;
+
     [Header("Transition")]
     [SerializeField] private float fadeOutDuration = 1f;
     [SerializeField] private float silenceDuration = 0.5f;
@@ -23,17 +31,23 @@ public class MusicManager : MonoBehaviour
     [Header("Start Fade")]
     [SerializeField] private float startFadeInDuration = 3f;
 
+    [Header("Scenes")]
+    [SerializeField] private string gameplaySceneName = "Level_1";
+
     [Header("Low HP Effect")]
     [SerializeField] private float maxSlowPitch = 0.6f;
     [SerializeField] private float pitchLerpSpeed = 2f;
 
     private AudioClip currentClip;
     private Coroutine transitionRoutine;
+    private Coroutine startRoutine;
 
     private PlayerHealth player;
 
     private float currentPitch = 1f;
     private bool isOneShotPlaying;
+    private AudioMixerSnapshot normalSnapshot;
+    private AudioMixerSnapshot pausedSnapshot;
     private void Awake()
     {
         if (Instance != null)
@@ -51,12 +65,45 @@ public class MusicManager : MonoBehaviour
         musicSource.playOnAwake = false;
         musicSource.spatialBlend = 0f;
         musicSource.loop = true;
+
+        AudioMixer mainMixer = Resources.Load<AudioMixer>("Audio/MainMixer");
+        if (mainMixer != null)
+        {
+            normalSnapshot = mainMixer.FindSnapshot("Snapshot");
+            pausedSnapshot = mainMixer.FindSnapshot("Paused");
+        }
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        GamePauseState.OnPauseChanged += OnPauseChanged;
     }
 
     private void Start()
     {
         player = FindFirstObjectByType<PlayerHealth>();
-        StartCoroutine(StartMusicFadeIn());
+
+        if (SceneManager.GetActiveScene().name != gameplaySceneName)
+        {
+            StopMusicImmediately();
+            return;
+        }
+
+        ApplyPauseSnapshot(
+            GamePauseState.IsPaused && GamePauseState.ShouldDuckMusic,
+            0f
+        );
+
+        if (transitionRoutine == null && !musicSource.isPlaying)
+            startRoutine = StartCoroutine(StartMusicFadeIn());
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance != this)
+            return;
+
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        GamePauseState.OnPauseChanged -= OnPauseChanged;
+        Instance = null;
     }
 
     private void Update()
@@ -77,7 +124,7 @@ public class MusicManager : MonoBehaviour
 
     private void ApplyVolumeFromSettings()
     {
-        float targetVolume = Mathf.Clamp(GameSettings.MusicVolume, 0f, 1f);
+        float targetVolume = GetTargetVolume();
 
         // не ломаем fade — только если нет transition
         if (transitionRoutine == null)
@@ -101,6 +148,38 @@ public class MusicManager : MonoBehaviour
     public void PlayDeath() => PlayOneShot(deathMusic);
     public void PlayVictory() => PlayOneShot(victoryMusic);
 
+    private void OnPauseChanged(bool isPaused)
+    {
+        float transitionDuration = isPaused
+            ? pauseFadeDuration
+            : resumeFadeDuration;
+
+        ApplyPauseSnapshot(
+            isPaused && GamePauseState.ShouldDuckMusic,
+            transitionDuration
+        );
+    }
+
+    private void ApplyPauseSnapshot(bool isPaused, float transitionDuration)
+    {
+        AudioMixerSnapshot snapshot = isPaused
+            ? pausedSnapshot
+            : normalSnapshot;
+
+        if (snapshot != null)
+            snapshot.TransitionTo(Mathf.Max(0f, transitionDuration));
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        player = FindFirstObjectByType<PlayerHealth>();
+
+        if (scene.name == gameplaySceneName)
+            PlayExploration();
+        else
+            StopMusicImmediately();
+    }
+
     // =========================
     // SWITCH MUSIC
     // =========================
@@ -114,6 +193,13 @@ public class MusicManager : MonoBehaviour
             return;
 
         currentClip = newClip;
+        isOneShotPlaying = false;
+
+        if (startRoutine != null)
+        {
+            StopCoroutine(startRoutine);
+            startRoutine = null;
+        }
 
         if (transitionRoutine != null)
             StopCoroutine(transitionRoutine);
@@ -123,7 +209,7 @@ public class MusicManager : MonoBehaviour
 
     private IEnumerator TransitionRoutine(AudioClip newClip)
     {
-        float targetVolume = Mathf.Clamp(GameSettings.MusicVolume, 0f, 1f);
+        float targetVolume = GetTargetVolume();
 
         // FADE OUT
         if (musicSource.isPlaying)
@@ -168,6 +254,7 @@ public class MusicManager : MonoBehaviour
         }
 
         musicSource.volume = targetVolume;
+        transitionRoutine = null;
     }
 
     // =========================
@@ -190,7 +277,7 @@ public class MusicManager : MonoBehaviour
 
         musicSource.Play();
 
-        float targetVolume = Mathf.Clamp(GameSettings.MusicVolume, 0f, 1f);
+        float targetVolume = GetTargetVolume();
 
         float t = 0f;
 
@@ -206,6 +293,7 @@ public class MusicManager : MonoBehaviour
         }
 
         musicSource.volume = targetVolume;
+        startRoutine = null;
     }
 
     // =========================
@@ -247,7 +335,16 @@ public class MusicManager : MonoBehaviour
             return;
 
         if (transitionRoutine != null)
+        {
             StopCoroutine(transitionRoutine);
+            transitionRoutine = null;
+        }
+
+        if (startRoutine != null)
+        {
+            StopCoroutine(startRoutine);
+            startRoutine = null;
+        }
 
         currentClip = clip;
 
@@ -261,8 +358,36 @@ public class MusicManager : MonoBehaviour
         currentPitch = 1f;
 
         musicSource.clip = clip;
-        musicSource.volume = Mathf.Clamp(GameSettings.MusicVolume, 0f, 1f);
+        musicSource.volume = GetTargetVolume();
 
         musicSource.Play();
+    }
+
+    private static float GetTargetVolume()
+    {
+        return Mathf.Clamp01(GameSettings.MusicVolume) * BaseMusicVolume;
+    }
+
+    private void StopMusicImmediately()
+    {
+        if (transitionRoutine != null)
+        {
+            StopCoroutine(transitionRoutine);
+            transitionRoutine = null;
+        }
+
+        if (startRoutine != null)
+        {
+            StopCoroutine(startRoutine);
+            startRoutine = null;
+        }
+
+        musicSource.Stop();
+        musicSource.clip = null;
+        musicSource.loop = true;
+        musicSource.pitch = 1f;
+        currentPitch = 1f;
+        currentClip = null;
+        isOneShotPlaying = false;
     }
 }

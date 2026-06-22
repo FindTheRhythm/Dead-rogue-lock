@@ -146,7 +146,7 @@ public class InGameMenuController : MonoBehaviour
         HideAll();
         deathPanel.SetActive(true);
 
-        GamePauseState.Pause();
+        GamePauseState.Pause(false);
     }
 
     // =========================
@@ -161,7 +161,7 @@ public class InGameMenuController : MonoBehaviour
         HideAll();
         winPanel.SetActive(true);
 
-        GamePauseState.Pause();
+        GamePauseState.Pause(false);
     }
 
     // =========================

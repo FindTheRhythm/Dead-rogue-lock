@@ -307,6 +307,9 @@ MonoBehaviour:
   maxHealth: 100
   isBoss: 1
   deathDelay: 30
+  healthPickupDropChance: 0.25
+  healthPickupAmount: 25
+  healthPickupDistance: 1.25
 --- !u!114 &2298167041436653427
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -340,9 +343,33 @@ MonoBehaviour:
   speedParameter: Speed
   projectilePrefab: {fileID: 8041752408229695070, guid: b8e64fe81d40e2842be40d5257a0d905, type: 3}
   shootPoint: {fileID: 236964862488365201}
-  attackCooldown: 1.5
+  attackCooldown: 2
   coneCount: 12
-  coneAngle: 70
+  coneAngle: 75
+  rotatingAttackDuration: 4
+  rotatingAttackCooldown: 2
+  rotatingAttackWindup: 0.6
+  rotatingShotInterval: 0.15
+  rotatingPointRadius: 3
+  rotatingPointSpeed: 50
+  rotatingProjectileSpeedMultiplier: 0.378
+  radialProjectileCount: 20
+  radialAttackWindup: 0.8
+  radialAttackCooldown: 2
+  radialProjectileSpeedMultiplier: 0.75
+  radialReturnDelay: 1
+  radialProjectileLifeTime: 2
+  arenaCrossWindup: 0.5
+  arenaCrossCooldown: 2
+  arenaCenterOffset: {x: 0.5, y: 0.5}
+  arenaHalfSize: {x: 11, y: 11}
+  arenaSpawnOutsideMargin: 2
+  arenaProjectileSpacing: 1
+  arenaProjectileSpeedMultiplier: 0.3
+  arenaProjectileLifeTime: 25
+  arenaProjectileStartDelay: 0.7
+  indicatorOffset: {x: 0, y: 4.5, z: 0}
+  indicatorScale: 1
   deathDelay: 2
 --- !u!1 &3632253908247093288
 GameObject:
@@ -562,7 +589,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 5}
+  m_AnchoredPosition: {x: 0, y: 4}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &4309878642137271935

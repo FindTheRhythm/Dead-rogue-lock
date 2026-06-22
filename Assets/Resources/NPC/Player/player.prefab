@@ -491,6 +491,10 @@ MonoBehaviour:
   maxOffsetDistance: 7
   deadZoneRadius: 3
   followSpeed: 10
+  bossFightMinOrthographicSize: 10
+  bossFightMaxOrthographicSize: 14
+  bossFramingPadding: 2
+  zoomSpeed: 3
   offsetCurve:
     serializedVersion: 2
     m_Curve:
@@ -1212,6 +1216,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 10
+  attackMoveMultiplier: 0.1
   rollSpeed: 20
   rollDuration: 0.5
   rollCooldown: 2
@@ -1232,7 +1237,33 @@ MonoBehaviour:
   cam: {fileID: 0}
   shootPoint: {fileID: 1759921526180564119}
   projectilePrefab: {fileID: 776937881982793824, guid: af8a6985393992246b7f1e0a611f6d50, type: 3}
+  movement: {fileID: 0}
+  playerAnimator: {fileID: 0}
   fireCooldown: 0.15
+  attackSlowDuration: 0.25
+  yellowChargeTime: 0.75
+  redChargeTime: 1.5
+  maxChargeTime: 2.5
+  chargedAttackCooldown: 0.8
+  chargedProjectileLifeTime: 1.25
+  graySpeed: 8
+  grayDamage: 5
+  grayScale: 1.45
+  grayWidth: 1
+  grayColorIntensity: 0.3
+  grayTargetCount: 2
+  yellowSpeed: 10
+  yellowDamage: 10
+  yellowScale: 1.75
+  yellowWidth: 1.15
+  yellowColorIntensity: 0.55
+  yellowTargetCount: 3
+  redSpeed: 12
+  redDamage: 18
+  redScale: 2.1
+  redWidth: 1.3
+  redColorIntensity: 0.8
+  redTargetCount: 4
 --- !u!114 &5094614325435672940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1262,6 +1293,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   maxHealth: 100
+  damageWindowDuration: 0.9
+  maxDamagePerWindow: 0.42
+  limitInvulnerabilityDuration: 0.67
 --- !u!114 &7892186256823906503
 MonoBehaviour:
   m_ObjectHideFlags: 0

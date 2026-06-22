@@ -7,6 +7,9 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 6f;
 
+    [Header("Attack Movement")]
+    [SerializeField, Range(0f, 1f)] private float attackMoveMultiplier = 0.1f;
+
     [Header("Roll")]
     [SerializeField] private float rollSpeed = 14f;
     [SerializeField] private float rollDuration = 0.25f;
@@ -23,6 +26,8 @@ public class PlayerMovement : MonoBehaviour
 
     private bool isRolling;
     private bool canRoll = true;
+    private float attackSlowUntil;
+    private bool isChargingAttack;
 
     private void Awake()
     {
@@ -65,7 +70,18 @@ public class PlayerMovement : MonoBehaviour
         if (GamePauseState.IsPaused || isRolling)
             return;
 
-        rb.linearVelocity = moveInput * moveSpeed;
+        if (isChargingAttack)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
+        float speedMultiplier = 1f;
+
+        if (Time.time < attackSlowUntil)
+            speedMultiplier = attackMoveMultiplier;
+
+        rb.linearVelocity = moveInput * moveSpeed * speedMultiplier;
     }
 
     private void OnRoll(InputAction.CallbackContext context)
@@ -73,7 +89,7 @@ public class PlayerMovement : MonoBehaviour
         if (GamePauseState.IsPaused)
             return;
 
-        if (!canRoll || isRolling)
+        if (!canRoll || isRolling || isChargingAttack)
             return;
 
         StartCoroutine(RollRoutine());
@@ -128,4 +144,17 @@ public class PlayerMovement : MonoBehaviour
     }
 
     public bool IsRolling => isRolling;
+
+    public void SlowForAttack(float duration)
+    {
+        attackSlowUntil = Mathf.Max(attackSlowUntil, Time.time + duration);
+    }
+
+    public void SetChargingAttack(bool isCharging)
+    {
+        isChargingAttack = isCharging;
+
+        if (isCharging && rb != null)
+            rb.linearVelocity = Vector2.zero;
+    }
 }
